@@ -41,7 +41,7 @@ var objectContainer = d3.select(hiddenElement);
 addNewRoad((horizontalCenter-sizeOfUserFigure*2), 0, sizeOfUserFigure*4, canvasHeight);
 //east west roads
 addNewRoad(0, verticalCenter/2-sizeOfUserFigure*2, canvasWidth, sizeOfUserFigure*4);
-addNewRoad(50, verticalCenter*1.5-sizeOfUserFigure*2, canvasWidth, sizeOfUserFigure*4);
+addNewRoad(100, verticalCenter*1.5-sizeOfUserFigure*2, canvasWidth-200, sizeOfUserFigure*4);
 
 var userFigure = objectContainer.append("circle")
     .attr("class", "userCircleNode")
