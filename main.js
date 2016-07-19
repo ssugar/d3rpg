@@ -36,13 +36,18 @@ var objectContainer = d3.select(hiddenElement);
 //for(i = 0; i < startingNumOfCircles; i++) {
 //    addNewBuilding();
 //}
+
+//north south road
 addNewRoad((horizontalCenter-sizeOfUserFigure*2), 0, sizeOfUserFigure*4, canvasHeight);
+//east west roads
+addNewRoad(0, verticalCenter/2-sizeOfUserFigure*2, canvasWidth, sizeOfUserFigure*4);
+addNewRoad(50, verticalCenter*1.5-sizeOfUserFigure*2, canvasWidth, sizeOfUserFigure*4);
 
 var userFigure = objectContainer.append("circle")
     .attr("class", "userCircleNode")
     .attr("id", "userCircle")
     .attr("cx", horizontalCenter)
-    .attr("cy", canvasHeight)
+    .attr("cy", (canvasHeight - (sizeOfUserFigure*2)))
     .attr("r", sizeOfUserFigure)
     .attr("fill", "black");
 
@@ -280,28 +285,34 @@ function keyboardMove(chX, chY) {
     var roadEndY = [];
     roadBinding.each(function() {
       var node = d3.select(this);
-      roadStartX.push(node.attr("x"));
-      roadStartY.push(node.attr("y"));
-      roadEndX.push(+node.attr("width") + +roadStartX);
-      roadEndY.push(+node.attr("height") + +roadStartY);
+      roadStartX.push(+node.attr("x"));
+      roadStartY.push(+node.attr("y"));
+      roadEndX.push(+node.attr("width") + +node.attr("x"));
+      roadEndY.push(+node.attr("height") + +node.attr("y"));
     });
-  
+
     //for each user item, should only be 1
     userBinding.each(function() {
         var node = d3.select(this);
         var curX = node.attr("cx");
         var curY = node.attr("cy");
+        var curR = node.attr("r");
         var nextX = +curX + +chX;
         var nextY = +curY + +chY;
+        var validMove = 0;
         for(i = 0; i < roadStartX.length; i++){
-            if((curX >= roadStartX[i] && curX <= roadEndX[i]) || (nextX >= roadStartX[i] && nextX <= roadEndX[i])){
+            if((+curX - +curR >= +roadStartX[i] && +curX + +curR <= +roadEndX[i]) || (+nextX - +curR >= +roadStartX[i] && +nextX + +curR <= +roadEndX[i])){
+                if((+curY - +curR >= +roadStartY[i] && +curY + +curR <= +roadEndY[i]) || (+nextY - +curR >= +roadStartY[i] && +nextY + +curR <= +roadEndY[i])){
+                    validMove = 1;
+                    console.log("move valid on road" + i);
+                }
+            }
+            //console.log(i + ' X ' + +curX + ' ' + +curR + ' ' + +roadStartX[i] + ' ' + +roadEndX[i] + ' ' + +nextX);
+            //console.log(i + ' Y ' +curY + ' ' + +curR + ' ' + +roadStartY[i] + ' ' + +roadEndY[i] + ' ' + +nextY);
+        }
+        if(validMove == 1){
                 node.attr("cx", +curX + +chX);
-                //console.log("move valid on X axis for road" + i);
-            }
-            if((curY >= roadStartY[i] && curY <= roadEndY[i]) || (nextY >= roadStartY[i] && nextY <= roadEndY[i])){
-                node.attr("cy", +curY + +chY);
-                //console.log("move valid on Y axis for road" + i);
-            }
+                node.attr("cy", +curY + +chY);          
         }
   });
 }
