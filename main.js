@@ -52,9 +52,21 @@ d3.select("#main-canvas")
     .on("touchmove", touchMove)
     .on("touchend", touchEnd);
 
-keyboardJS.bind('a', function(e) {
-  console.log('a is pressed');
+keyboardJS.bind('w', function(e) {
+  keyboardMove(0, -10);  
 });
+keyboardJS.bind('a', function(e) {
+  keyboardMove(-10, 0);  
+});
+keyboardJS.bind('d', function(e) {
+  keyboardMove(10, 0);  
+});
+keyboardJS.bind('s', function(e) {
+  keyboardMove(0, 10);  
+});
+
+
+
 
 //Adds a new circle, initial placement is outside the radius of the user starting position
 function addNewCircle(){
@@ -237,7 +249,9 @@ function touchEnd() {
 function keyboardMove(chX, chY) {
   userBinding.each(function() {
     var node = d3.select(this);
-    node.attr("cx", +chX);
-    node.attr("cy", +chY);
+    var curX = node.attr("cx");
+    var curY = node.attr("cy");
+    node.attr("cx", +curX + +chX);
+    node.attr("cy", +curY + +chY);
   });
 }
