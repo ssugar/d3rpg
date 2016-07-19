@@ -5,6 +5,8 @@ var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
 var canvasMargin = 10;
 var canvasWidth = w - canvasMargin*2;
 var canvasHeight = h - canvasMargin*2;
+var horizontalCenter = canvasWidth/2;
+var verticalCenter = canvasHeight/2;
 
 //Animation and transition settings
 var redrawCanvasInterval = 50;
@@ -16,7 +18,7 @@ var takeActionThreshold = 250;
 var gameOver = 0;
 var moveNumber = 0;
 var startingNumOfCircles = 10;
-var sizeOfUserFigure = 100;
+var sizeOfUserFigure = 30;
 var sizeOfCircleMin = 10;
 var sizeOfCircleMax = 80;
 
@@ -28,20 +30,26 @@ var canvas = d3.select("body").append("canvas")
 var context = canvas.node().getContext("2d")
 
 //Building a container to hold our user figure and circle settings
-var circleHolder = document.createElement("custom");
-var circleContainer = d3.select(circleHolder);
-for(i = 0; i < startingNumOfCircles; i++) {
-    addNewCircle();
-}
-var userFigure = circleContainer.append("circle")
+var hiddenElement = document.createElement("custom");
+var objectContainer = d3.select(hiddenElement);
+
+//for(i = 0; i < startingNumOfCircles; i++) {
+//    addNewBuilding();
+//}
+addNewRoad((horizontalCenter-sizeOfUserFigure*2), 0, sizeOfUserFigure*4, canvasHeight);
+
+var userFigure = objectContainer.append("circle")
     .attr("class", "userCircleNode")
     .attr("id", "userCircle")
+    .attr("cx", horizontalCenter)
+    .attr("cy", canvasHeight)
     .attr("r", sizeOfUserFigure)
     .attr("fill", "black");
 
 //Selecting the user figure and the circles 
-var userBinding = circleContainer.selectAll(".userCircleNode");
-var circleBinding = circleContainer.selectAll(".circleNode");
+var userBinding = objectContainer.selectAll(".userCircleNode");
+var buildingBinding = objectContainer.selectAll(".buildingNode");
+var roadBinding = objectContainer.selectAll(".roadNode");
 
 //Starting the animation
 runTimer();
@@ -65,26 +73,34 @@ keyboardJS.bind('s', function(e) {
   keyboardMove(0, 10);  
 });
 
-
-
-
-//Adds a new circle, initial placement is outside the radius of the user starting position
-function addNewCircle(){
-    var randomX = d3.randomUniform(sizeOfUserFigure, canvasWidth)();
-    var randomY = d3.randomUniform(sizeOfUserFigure, canvasHeight)();
-    var circleItem = circleContainer.append("circle")
-        .attr("class", "circleNode")
-        .attr("cx", randomX)
-        .attr("cy", randomY)
-        .attr("r", sizeOfCircleMin)
+function addNewBuilding(){
+    var randomX = d3.randomUniform(0, canvasWidth)();
+    var randomY = d3.randomUniform(0, canvasHeight)();
+    var randomSize = d3.randomUniform(sizeOfCircleMin, sizeOfCircleMax)();
+    var building = objectContainer.append("rect")
+        .attr("class", "buildingNode")
+        .attr("x", randomX)
+        .attr("y", randomY)
+        .attr("width", randomSize)
+        .attr("height", randomSize)
         .attr("fill", randomColor);
+}
+
+function addNewRoad(startX, startY, width, height){
+    var road = objectContainer.append("rect")
+        .attr("class", "roadNode")
+        .attr("x", startX)
+        .attr("y", startY)
+        .attr("width", width)
+        .attr("height", height)
+        .attr("fill", "grey");
 }
 
 //Removes all circles except the starting circles
 function removeExtraCircles(){
-    circleBinding = circleContainer.selectAll(".circleNode");
+    buildingBinding = objectContainer.selectAll(".circleNode");
     var loopCounter = 0;
-    circleBinding.each(function(d) {
+    buildingBinding.each(function(d) {
         if(loopCounter >= startingNumOfCircles){
             var node = d3.select(this);
             node.remove();
@@ -98,7 +114,7 @@ function runTimer(){
         clearCanvas(context)
         setTransition();
         //detectCollision(d3timer, elapsed);
-        drawCanvas(circleBinding, context);
+        drawCanvas(buildingBinding, context);
     }, redrawCanvasInterval);
 }
 
@@ -110,12 +126,21 @@ function clearCanvas(context){
 
 function drawCanvas(circleBinding, context){
     //reselect all circles as more may have been added.    
-    circleBinding = circleContainer.selectAll(".circleNode");
-    circleBinding.each(function(d) {
+    buildingBinding = objectContainer.selectAll(".buildingNode");
+    buildingBinding.each(function(d) {
         var node = d3.select(this);
         context.fillStyle = node.attr("fill");
         context.beginPath();
-        context.arc(node.attr("cx"), node.attr("cy"), node.attr("r"), 0, 2 * Math.PI, true);
+        context.rect(node.attr("x"), node.attr("y"), node.attr("width"), node.attr("height"));
+        context.fill();
+        context.closePath();
+    });
+    roadBinding = objectContainer.selectAll(".roadNode");
+    roadBinding.each(function(d) {
+        var node = d3.select(this);
+        context.fillStyle = node.attr("fill");
+        context.beginPath();
+        context.rect(node.attr("x"), node.attr("y"), node.attr("width"), node.attr("height"));
         context.fill();
         context.closePath();
     });
@@ -132,22 +157,22 @@ function drawCanvas(circleBinding, context){
 //tell each circle where to move to and what color to change to next
 function setTransition(){
     if(takeAction == takeActionThreshold) {
-        circleBinding = circleContainer.selectAll(".circleNode");
-        circleBinding.each(function(d) {
+        buildingBinding = objectContainer.selectAll(".buildingNode");
+        buildingBinding.each(function(d) {
             var node = d3.select(this);
             var randomX = d3.randomUniform(0, canvasWidth)();
             var randomY = d3.randomUniform(0, canvasHeight)();
-            var randomR = d3.randomUniform(sizeOfCircleMin, sizeOfCircleMax)();
+            var randomSize = d3.randomUniform(sizeOfCircleMin, sizeOfCircleMax)();
             node.transition()
             .duration(transitionObjectInterval)
-            .attr("cx", randomX)
-            .attr("cy", randomY)
-            .attr("r", randomR)
+            .attr("x", randomX)
+            .attr("y", randomY)
+            .attr("width", randomSize)
+            .attr("height", randomSize)
             .attr("fill", randomColor);
         });
         moveNumber = moveNumber + 1;
         takeAction = 0;
-        addNewCircle();
     }
     else{
         takeAction = takeAction + 1;
@@ -156,8 +181,8 @@ function setTransition(){
 
 //move all circles off the canvas, called after user loses so they can re-start anywhere on the screen and not collide immediately.
 function setTransitionOffCanvas(){
-    circleBinding = circleContainer.selectAll(".circleNode");
-    circleBinding.each(function(d) {
+    buildingBinding = objectContainer.selectAll(".buildingNode");
+    buildingBinding.each(function(d) {
         var node = d3.select(this);
         node.transition()
         .duration(100)
@@ -177,8 +202,8 @@ function detectCollision(d3timer, elapsed){
     var userY = [];
     var userColor = [];
     var userRadius = [];
-    circleBinding = circleContainer.selectAll(".circleNode");
-    circleBinding.each(function(d) {
+    buildingBinding = objectContainer.selectAll(".buildingNode");
+    buildingBinding.each(function(d) {
         node = d3.select(this);
         currentX.push(Math.round(node.attr("cx")));
         currentY.push(Math.round(node.attr("cy")));
@@ -247,11 +272,36 @@ function touchEnd() {
 }
 
 function keyboardMove(chX, chY) {
-  userBinding.each(function() {
-    var node = d3.select(this);
-    var curX = node.attr("cx");
-    var curY = node.attr("cy");
-    node.attr("cx", +curX + +chX);
-    node.attr("cy", +curY + +chY);
+    //read in the roads
+    roadBinding = objectContainer.selectAll(".roadNode");
+    var roadStartX = [];
+    var roadStartY = [];
+    var roadEndX = [];
+    var roadEndY = [];
+    roadBinding.each(function() {
+      var node = d3.select(this);
+      roadStartX.push(node.attr("x"));
+      roadStartY.push(node.attr("y"));
+      roadEndX.push(+node.attr("width") + +roadStartX);
+      roadEndY.push(+node.attr("height") + +roadStartY);
+    });
+  
+    //for each user item, should only be 1
+    userBinding.each(function() {
+        var node = d3.select(this);
+        var curX = node.attr("cx");
+        var curY = node.attr("cy");
+        var nextX = +curX + +chX;
+        var nextY = +curY + +chY;
+        for(i = 0; i < roadStartX.length; i++){
+            if((curX >= roadStartX[i] && curX <= roadEndX[i]) || (nextX >= roadStartX[i] && nextX <= roadEndX[i])){
+                node.attr("cx", +curX + +chX);
+                //console.log("move valid on X axis for road" + i);
+            }
+            if((curY >= roadStartY[i] && curY <= roadEndY[i]) || (nextY >= roadStartY[i] && nextY <= roadEndY[i])){
+                node.attr("cy", +curY + +chY);
+                //console.log("move valid on Y axis for road" + i);
+            }
+        }
   });
 }
