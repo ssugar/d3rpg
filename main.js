@@ -38,7 +38,8 @@ var objectContainer = d3.select(hiddenElement);
 //}
 
 //north south road
-addNewRoad((horizontalCenter-sizeOfUserFigure*2), 0, sizeOfUserFigure*4, canvasHeight);
+addNewRoad((horizontalCenter/2-sizeOfUserFigure*2), 0, sizeOfUserFigure*4, canvasHeight);
+addNewRoad((horizontalCenter*1.5-sizeOfUserFigure*2), 0, sizeOfUserFigure*4, verticalCenter*1.5);
 //east west roads
 addNewRoad(0, verticalCenter/2-sizeOfUserFigure*2, canvasWidth, sizeOfUserFigure*4);
 addNewRoad(100, verticalCenter*1.5-sizeOfUserFigure*2, canvasWidth-200, sizeOfUserFigure*4);
@@ -46,7 +47,7 @@ addNewRoad(100, verticalCenter*1.5-sizeOfUserFigure*2, canvasWidth-200, sizeOfUs
 var userFigure = objectContainer.append("circle")
     .attr("class", "userCircleNode")
     .attr("id", "userCircle")
-    .attr("cx", horizontalCenter)
+    .attr("cx", horizontalCenter/2)
     .attr("cy", (canvasHeight - (sizeOfUserFigure*2)))
     .attr("r", sizeOfUserFigure)
     .attr("fill", "black");
