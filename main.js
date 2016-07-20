@@ -18,7 +18,7 @@ var takeActionThreshold = 250;
 var gameOver = 0;
 var moveNumber = 0;
 var startingNumOfCircles = 10;
-var sizeOfUserFigure = 30;
+var sizeOfUserFigure = 20;
 var sizeOfCircleMin = 10;
 var sizeOfCircleMax = 80;
 
@@ -66,16 +66,16 @@ d3.select("#main-canvas")
     .on("touchend", touchEnd);
 
 keyboardJS.bind('w', function(e) {
-  keyboardMove(0, -10);  
+  keyboardMove(0, -5);  
 });
 keyboardJS.bind('a', function(e) {
-  keyboardMove(-10, 0);  
+  keyboardMove(-5, 0);  
 });
 keyboardJS.bind('d', function(e) {
-  keyboardMove(10, 0);  
+  keyboardMove(5, 0);  
 });
 keyboardJS.bind('s', function(e) {
-  keyboardMove(0, 10);  
+  keyboardMove(0, 5);  
 });
 
 function addNewBuilding(){
@@ -301,8 +301,8 @@ function keyboardMove(chX, chY) {
         var nextY = +curY + +chY;
         var validMove = 0;
         for(i = 0; i < roadStartX.length; i++){
-            if((+curX - +curR >= +roadStartX[i] && +curX + +curR <= +roadEndX[i]) || (+nextX - +curR >= +roadStartX[i] && +nextX + +curR <= +roadEndX[i])){
-                if((+curY - +curR >= +roadStartY[i] && +curY + +curR <= +roadEndY[i]) || (+nextY - +curR >= +roadStartY[i] && +nextY + +curR <= +roadEndY[i])){
+            if((+nextX - +curR >= +roadStartX[i] && +nextX + +curR <= +roadEndX[i])){
+                if((+nextY - +curR >= +roadStartY[i] && +nextY + +curR <= +roadEndY[i])){
                     validMove = 1;
                     console.log("move valid on road" + i);
                 }
